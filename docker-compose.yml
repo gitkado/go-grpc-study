@@ -4,5 +4,5 @@ services:
   api:
     build: .
     volumes:
-      - .:/go
+      - .:/go/app
     tty: true
