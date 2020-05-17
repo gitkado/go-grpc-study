@@ -134,14 +134,15 @@ var file_pb_service_proto_rawDesc = []byte{
 	0x2f, 0x0a, 0x12, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x52, 0x65, 0x73,
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x69, 0x73, 0x5f, 0x63, 0x68, 0x65, 0x63,
 	0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x69, 0x73, 0x43, 0x68, 0x65, 0x63, 0x6b,
-	0x32, 0x62, 0x0a, 0x0d, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x12, 0x51, 0x0a, 0x0a, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x12,
+	0x32, 0x66, 0x0a, 0x0d, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x55, 0x0a, 0x0a, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x12,
 	0x20, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e,
 	0x43, 0x68, 0x65, 0x63, 0x6b, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
 	0x65, 0x1a, 0x21, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f,
 	0x6e, 0x2e, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x41, 0x75, 0x74, 0x68, 0x7a, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x42, 0x12, 0x5a, 0x10, 0x70, 0x62, 0x3b, 0x61, 0x75, 0x74, 0x68, 0x6f,
-	0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x6e, 0x73, 0x65, 0x28, 0x01, 0x30, 0x01, 0x42, 0x12, 0x5a, 0x10, 0x70, 0x62, 0x3b, 0x61,
+	0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -234,7 +235,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AuthorizationClient interface {
-	CheckAuthz(ctx context.Context, in *CheckAuthzMessage, opts ...grpc.CallOption) (*CheckAuthzResponse, error)
+	CheckAuthz(ctx context.Context, opts ...grpc.CallOption) (Authorization_CheckAuthzClient, error)
 }
 
 type authorizationClient struct {
@@ -245,59 +246,91 @@ func NewAuthorizationClient(cc grpc.ClientConnInterface) AuthorizationClient {
 	return &authorizationClient{cc}
 }
 
-func (c *authorizationClient) CheckAuthz(ctx context.Context, in *CheckAuthzMessage, opts ...grpc.CallOption) (*CheckAuthzResponse, error) {
-	out := new(CheckAuthzResponse)
-	err := c.cc.Invoke(ctx, "/authorization.Authorization/CheckAuthz", in, out, opts...)
+func (c *authorizationClient) CheckAuthz(ctx context.Context, opts ...grpc.CallOption) (Authorization_CheckAuthzClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Authorization_serviceDesc.Streams[0], "/authorization.Authorization/CheckAuthz", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &authorizationCheckAuthzClient{stream}
+	return x, nil
+}
+
+type Authorization_CheckAuthzClient interface {
+	Send(*CheckAuthzMessage) error
+	Recv() (*CheckAuthzResponse, error)
+	grpc.ClientStream
+}
+
+type authorizationCheckAuthzClient struct {
+	grpc.ClientStream
+}
+
+func (x *authorizationCheckAuthzClient) Send(m *CheckAuthzMessage) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *authorizationCheckAuthzClient) Recv() (*CheckAuthzResponse, error) {
+	m := new(CheckAuthzResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // AuthorizationServer is the server API for Authorization service.
 type AuthorizationServer interface {
-	CheckAuthz(context.Context, *CheckAuthzMessage) (*CheckAuthzResponse, error)
+	CheckAuthz(Authorization_CheckAuthzServer) error
 }
 
 // UnimplementedAuthorizationServer can be embedded to have forward compatible implementations.
 type UnimplementedAuthorizationServer struct {
 }
 
-func (*UnimplementedAuthorizationServer) CheckAuthz(context.Context, *CheckAuthzMessage) (*CheckAuthzResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckAuthz not implemented")
+func (*UnimplementedAuthorizationServer) CheckAuthz(Authorization_CheckAuthzServer) error {
+	return status.Errorf(codes.Unimplemented, "method CheckAuthz not implemented")
 }
 
 func RegisterAuthorizationServer(s *grpc.Server, srv AuthorizationServer) {
 	s.RegisterService(&_Authorization_serviceDesc, srv)
 }
 
-func _Authorization_CheckAuthz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckAuthzMessage)
-	if err := dec(in); err != nil {
+func _Authorization_CheckAuthz_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AuthorizationServer).CheckAuthz(&authorizationCheckAuthzServer{stream})
+}
+
+type Authorization_CheckAuthzServer interface {
+	Send(*CheckAuthzResponse) error
+	Recv() (*CheckAuthzMessage, error)
+	grpc.ServerStream
+}
+
+type authorizationCheckAuthzServer struct {
+	grpc.ServerStream
+}
+
+func (x *authorizationCheckAuthzServer) Send(m *CheckAuthzResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *authorizationCheckAuthzServer) Recv() (*CheckAuthzMessage, error) {
+	m := new(CheckAuthzMessage)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(AuthorizationServer).CheckAuthz(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/authorization.Authorization/CheckAuthz",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServer).CheckAuthz(ctx, req.(*CheckAuthzMessage))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 var _Authorization_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "authorization.Authorization",
 	HandlerType: (*AuthorizationServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "CheckAuthz",
-			Handler:    _Authorization_CheckAuthz_Handler,
+			StreamName:    "CheckAuthz",
+			Handler:       _Authorization_CheckAuthz_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "pb/service.proto",
 }

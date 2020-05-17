@@ -3,7 +3,7 @@ package authorization;
 option go_package = "pb;authorization";
 
 service Authorization {
-    rpc CheckAuthz (CheckAuthzMessage) returns (CheckAuthzResponse);
+    rpc CheckAuthz (stream CheckAuthzMessage) returns (stream CheckAuthzResponse);
 }
 
 message CheckAuthzMessage {

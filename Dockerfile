@@ -22,4 +22,4 @@ RUN set -eux && \
 RUN go get -u google.golang.org/grpc && \
     go get -u github.com/golang/protobuf/protoc-gen-go
 
-WORKDIR /go/app
+WORKDIR /go/github.com/gitkado/go-grpc-study

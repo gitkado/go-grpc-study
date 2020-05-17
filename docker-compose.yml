@@ -4,5 +4,8 @@ services:
   api:
     build: .
     volumes:
-      - .:/go/app
+      - .:/go/github.com/gitkado/go-grpc-study
+    ports:
+      - 8888:8888
     tty: true
+    command: "go run server/main.go"
